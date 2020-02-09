@@ -1,6 +1,7 @@
 import { entriesState, Entry } from './entriesState';
 import { createSlice } from '@reduxjs/toolkit';
 import moment from 'moment';
+import { dateFormat } from '../../App';
 const uuidv1 = require('uuid/v1');
 
 export const entriesSlice = createSlice({
@@ -8,7 +9,7 @@ export const entriesSlice = createSlice({
   initialState: entriesState,
   reducers: {
     createEntry(state, action: { payload: string }) {
-      state.list.push({ id: uuidv1(), title: action.payload, learnedAt: moment().format('DD.MM.YYYY'), repeatedAt: [] });
+      state.list.push({ id: uuidv1(), title: action.payload, learnedAt: moment().format(dateFormat), repeatedAt: [] });
     },
     deleteEntry(state, action: { payload: string }) {
       state.list = state.list.filter(entry => entry.id !== action.payload)

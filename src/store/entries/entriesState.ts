@@ -1,8 +1,8 @@
 export interface Entry {
   id: string, // uuid
   title: string,
-  learnedAt: string, // dd.mm.yyyy
-  repeatedAt: string[], // dd.mm.yyyy
+  learnedAt: string, 
+  repeatedAt: string[], 
 }
 
 export interface EntriesState {

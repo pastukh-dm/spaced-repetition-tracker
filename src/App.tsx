@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { createEntry, deleteEntry, updateEntry } from './store/entries/entriesSlice';
 import { RootState } from './store/RootState';
 import { Entry } from './store/entries/entriesState';
-import { MdDelete } from 'react-icons/md';
 import './App.scss';
-import { Container, Button, Table, Modal } from 'react-bootstrap';
-import DatePicker from "react-datepicker";
+import { Container, Button, Table } from 'react-bootstrap';
+import { EntryRow } from './store/components/EntryRow';
 import moment from 'moment';
-import en from "date-fns/locale/en-GB";
+import { FaBook } from 'react-icons/fa';
+
+export const repetitionSchedule = [3, 7, 10, 14, 20, 30, 45, 60];
+export const dateFormat = 'DD.MM.YYYY';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -18,11 +20,37 @@ const App = () => {
   const handleDeleteEntry = (entry: Entry) => dispatch(deleteEntry(entry.id))
   const handleUpdateEntry = (entry: Entry) => dispatch(updateEntry(entry))
 
+  const handleRepeat = (entry: Entry) => {
+    handleUpdateEntry({
+      ...entry,
+      repeatedAt: [...entry.repeatedAt, getNextRepeatDate(entry)]
+    })
+  }
+
+
   return (
     <div className="App">
       <Container>
         <br />
         <h1>Spaced Repetition Tracker</h1>
+        {/* <p>{JSON.stringify(repetitionSchedule)}</p> */}
+        <ul>
+          {
+            getEntriesToRepeat(entries).map(entry =>
+              <div key={entry.id}>
+                {entry.title}
+                {' '}
+                ({getPastRepetionDatesByEntry(entry).length - entry.repeatedAt.length})
+                <button
+                  className="btn text-primary btn-sm"
+                  onClick={() => handleRepeat(entry)}
+                >
+                  <FaBook />
+                </button>
+              </div>
+            )
+          }
+        </ul>
         <br />
         <Button
           variant="primary"
@@ -62,91 +90,35 @@ const App = () => {
   );
 }
 
-const EntryRow = ({ entry, onDelete, onUpdate }: EntryRowProps) => {
-  const [show, setShow] = useState(false);
-  const [startDate, setStartDate] = useState(moment(entry.learnedAt, 'DD.MM.YYYY').toDate());
-
-  const handleShow = () => setShow(true);
-  const handleClose = () => setShow(false);
-  const handleDelete = () => {
-    onDelete(entry);
-    setShow(false);
-  };
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.which === 13) {
-      e.preventDefault();
-    }
-  }
-  const handleTitleChange = (e: React.FocusEvent<HTMLInputElement>) => {
-    const nextTitle = e.target.value || entry.title;
-    if (nextTitle !== entry.title) {
-      onUpdate({ ...entry, title: nextTitle });
-    }
-  }
-  const handleLearnedAtChange = (date: Date) => {
-    const nextLearnedAt = moment(date).format('DD.MM.YYYY');
-    if (nextLearnedAt !== entry.learnedAt) {
-      onUpdate({ ...entry, learnedAt: nextLearnedAt });
-    }
-    setStartDate(date);
-  }
-
-  return (
-    <tr key={entry.id}>
-      <td>
-        <input
-          type="text"
-          defaultValue={entry.title}
-          onKeyDown={handleKeyDown}
-          onBlur={handleTitleChange}
-        />
-      </td>
-      <td>
-        <DatePicker
-          selected={startDate}
-          onChange={handleLearnedAtChange}
-          locale={en}
-          dateFormat="dd.MM.yyyy"
-          todayButton="Today"
-        />
-      </td>
-      <td>
-        <button
-          className="text-danger"
-          onClick={handleShow}
-        >
-          <MdDelete />
-        </button>
-        <Modal show={show} onHide={handleClose}>
-          <Modal.Header closeButton>
-            <Modal.Title>Are you sure?</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            You are going to delete entry: "{entry.title}"
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              variant="secondary"
-              onClick={handleClose}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="danger"
-              onClick={handleDelete}
-            >
-              Delete
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      </td>
-    </tr>
-  )
-}
-interface EntryRowProps {
-  entry: Entry,
-  onDelete: (entry: Entry) => void
-  onUpdate: (entry: Entry) => void
-}
-
 export default App;
+
+
+const getEntriesToRepeat = (entries: Entry[]): Entry[] => {
+  return entries.filter(entry => {
+    const repDates = getRepetitionDates(entry.learnedAt);
+    const pastReps = getPastRepetionDates(repDates);
+    // console.log(entry.title, entry.repeatedAt.length < complReps.length);
+
+    const toRepeat = moment(getNextRepeatDate(entry), dateFormat) <= moment()
+      && entry.repeatedAt.length < pastReps.length;
+    return toRepeat;
+  });
+}
+
+const getPastRepetionDates = (dates: string[]): string[] => {
+  return dates.filter(repDate => moment(repDate, dateFormat) < moment())
+}
+const getPastRepetionDatesByEntry = (entry: Entry): string[] => {
+  const repDates = getRepetitionDates(entry.learnedAt);
+  return repDates.filter(repDate => moment(repDate, dateFormat) < moment())
+}
+
+const getRepetitionDates = (learnedAt: string): string[] => {
+  return repetitionSchedule
+    .map(days => moment(learnedAt, dateFormat).add(days, 'days').format(dateFormat));
+}
+
+const getNextRepeatDate = (entry: Entry): string => {
+  const repDates = getRepetitionDates(entry.learnedAt)
+  return repDates[entry.repeatedAt.length]
+}

@@ -27,64 +27,83 @@ const App = () => {
     })
   }
 
+  const toRepeat = getEntriesToRepeat(entries);
+
 
   return (
     <div className="App">
       <Container>
         <br />
         <h1>Spaced Repetition Tracker</h1>
-        {/* <p>{JSON.stringify(repetitionSchedule)}</p> */}
-        <ul>
-          {
-            getEntriesToRepeat(entries).map(entry =>
-              <div key={entry.id}>
-                {entry.title}
-                {' '}
-                ({getPastRepetionDatesByEntry(entry).length - entry.repeatedAt.length})
+        <br />
+        <div className="card">
+          <div className="card-body">
+            <h2>Repeat</h2>
+            {
+              toRepeat.length ?
+                <ul>
+                  {
+                    getEntriesToRepeat(entries).map(entry =>
+                      <li key={entry.id}>
+                        {entry.title}
+                        {' '}
+                        ({getPastRepetionDatesByEntry(entry).length - entry.repeatedAt.length})
                 <button
-                  className="btn text-primary btn-sm"
-                  onClick={() => handleRepeat(entry)}
-                >
-                  <FaBook />
-                </button>
-              </div>
-            )
-          }
-        </ul>
-        <br />
-        <Button
-          variant="primary"
-          onClick={handleAddEntry}
-        >
-          Add
+                          className="btn text-primary btn-sm"
+                          onClick={() => handleRepeat(entry)}
+                        >
+                          <FaBook />
+                        </button>
+                      </li>
+                    )
+                  }
+                </ul>
+                : 'Nothing to repeat'
+            }
+          </div>
+        </div>
+        <br/>
+        <div className="card">
+          <div className="card-body">
+            <h3>Learned</h3>
+            <br />
+            <Button
+              variant="primary"
+              onClick={handleAddEntry}
+            >
+              Add
         </Button>
-        <br />
-        <br />
-        {
-          entries.length > 0 ?
-            <Table>
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Learned at</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {
-                  entries.map(entry =>
-                    <EntryRow
-                      key={entry.id}
-                      entry={entry}
-                      onDelete={handleDeleteEntry}
-                      onUpdate={handleUpdateEntry}
-                    />
-                  )
-                }
-              </tbody>
-            </Table>
-            : 'No entries'
-        }
+            <br />
+            <br />
+            {
+              entries.length > 0 ?
+                <Table>
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Learned at</th>
+                      <th>Next repetition at</th>
+                      <th>Progress</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      entries.map(entry =>
+                        <EntryRow
+                          key={entry.id}
+                          entry={entry}
+                          onDelete={handleDeleteEntry}
+                          onUpdate={handleUpdateEntry}
+                        />
+                      )
+                    }
+                  </tbody>
+                </Table>
+                : 'No entries'
+            }
+          </div>
+        </div>
       </Container>
     </div>
   );

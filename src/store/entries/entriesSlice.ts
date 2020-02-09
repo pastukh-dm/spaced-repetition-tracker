@@ -9,7 +9,7 @@ export const entriesSlice = createSlice({
   initialState: entriesState,
   reducers: {
     createEntry(state, action: { payload: string }) {
-      state.list.push({ id: uuidv1(), title: action.payload, learnedAt: moment().format(dateFormat), repeatedAt: [] });
+      state.list.unshift({ id: uuidv1(), title: action.payload, learnedAt: moment().format(dateFormat), repeatedAt: [] });
     },
     deleteEntry(state, action: { payload: string }) {
       state.list = state.list.filter(entry => entry.id !== action.payload)

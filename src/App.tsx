@@ -4,7 +4,7 @@ import { updateEntry, deleteEntry, createEntry } from './store/entries/entriesSl
 import { RootState } from './store/RootState';
 import { Entry } from './store/entries/entriesState';
 import './App.scss';
-import { Container, Table} from 'react-bootstrap';
+import { Container, Table } from 'react-bootstrap';
 import { EntryRow } from './components/EntryRow';
 import moment from 'moment';
 import { FaBook } from 'react-icons/fa';
@@ -27,7 +27,7 @@ export function App() {
   }
 
   const toRepeat = getEntriesToRepeat(entries);
-  const handleAddEntry = (data: {title: string, link?: string}) => dispatch(createEntry(data))
+  const handleAddEntry = (data: { title: string, link?: string }) => dispatch(createEntry(data))
 
   return (
     <div className="App">
@@ -44,11 +44,14 @@ export function App() {
                   {
                     getEntriesToRepeat(entries).map(entry =>
                       <li key={entry.id}>
-                        {entry.title}
+                        {entry.link ?
+                          <a href={entry.link}>{entry.title}</a>
+                          : entry.title
+                        }
                         {' '}
                         ({getPastRepetionDatesByEntry(entry).length - entry.repeatedAt.length})
                         <button
-                          className="btn text-primary btn-sm"
+                          className="btn btn-primary ml-2 btn-sm"
                           onClick={() => handleRepeat(entry)}
                         >
                           <FaBook />
@@ -66,7 +69,7 @@ export function App() {
           <div className="card-body">
             <h3>Learned</h3>
             <br />
-            <AddEntry onSubmit={handleAddEntry}/>
+            <AddEntry onSubmit={handleAddEntry} />
             <br />
             <br />
             {

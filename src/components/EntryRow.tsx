@@ -5,9 +5,9 @@ import { FaBook } from 'react-icons/fa';
 import DatePicker from "react-datepicker";
 import moment from 'moment';
 import en from "date-fns/locale/en-GB";
-import { Entry } from '../entries/entriesState';
+import { Entry } from '../store/entries/entriesState';
 import { Button, Modal } from 'react-bootstrap';
-import { repetitionSchedule, dateFormat } from '../../App';
+import { repetitionSchedule, dateFormat } from '../App';
 
 export const EntryRow = ({ entry, onDelete, onUpdate }: EntryRowProps) => {
   const [show, setShow] = useState(false);
@@ -28,6 +28,12 @@ export const EntryRow = ({ entry, onDelete, onUpdate }: EntryRowProps) => {
     const nextTitle = e.target.value || entry.title;
     if (nextTitle !== entry.title) {
       onUpdate({ ...entry, title: nextTitle });
+    }
+  }
+  const handleLinkChange = (e: React.FocusEvent<HTMLInputElement>) => {
+    const nextLink = e.target.value || entry.link;
+    if (nextLink !== entry.link) {
+      onUpdate({ ...entry, link: nextLink });
     }
   }
   const handleLearnedAtChange = (date: Date) => {
@@ -52,6 +58,14 @@ export const EntryRow = ({ entry, onDelete, onUpdate }: EntryRowProps) => {
           defaultValue={entry.title}
           onKeyDown={handleKeyDown}
           onBlur={handleTitleChange}
+        />
+      </td>
+      <td>
+        <input
+          type="text"
+          defaultValue={entry.link}
+          onKeyDown={handleKeyDown}
+          onBlur={handleLinkChange}
         />
       </td>
       <td>

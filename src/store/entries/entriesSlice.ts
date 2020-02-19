@@ -8,8 +8,15 @@ export const entriesSlice = createSlice({
   name: 'entries',
   initialState: entriesState,
   reducers: {
-    createEntry(state, action: { payload: string }) {
-      state.list.unshift({ id: uuidv1(), title: action.payload, learnedAt: moment().format(dateFormat), repeatedAt: [] });
+    createEntry(state, action: { payload: { title: string, link?: string } }) {
+      debugger;
+      state.list.unshift({
+        id: uuidv1(),
+        title: action.payload.title,
+        link: action.payload.link,
+        learnedAt: moment().format(dateFormat),
+        repeatedAt: []
+      });
     },
     deleteEntry(state, action: { payload: string }) {
       state.list = state.list.filter(entry => entry.id !== action.payload)

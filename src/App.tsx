@@ -1,22 +1,21 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { createEntry, deleteEntry, updateEntry } from './store/entries/entriesSlice';
+import { updateEntry, deleteEntry, createEntry } from './store/entries/entriesSlice';
 import { RootState } from './store/RootState';
 import { Entry } from './store/entries/entriesState';
 import './App.scss';
-import { Container, Button, Table } from 'react-bootstrap';
-import { EntryRow } from './store/components/EntryRow';
+import { Container, Table} from 'react-bootstrap';
+import { EntryRow } from './components/EntryRow';
 import moment from 'moment';
 import { FaBook } from 'react-icons/fa';
+import { AddEntry } from './components/AddEntry';
 
 export const repetitionSchedule = [3, 7, 10, 14, 20, 30, 45, 60];
 export const dateFormat = 'DD.MM.YYYY';
 
-const App = () => {
+export function App() {
   const dispatch = useDispatch();
   const entries = useSelector<RootState, Entry[]>(state => state.entries.list);
-
-  const handleAddEntry = () => dispatch(createEntry('New entry'))
   const handleDeleteEntry = (entry: Entry) => dispatch(deleteEntry(entry.id))
   const handleUpdateEntry = (entry: Entry) => dispatch(updateEntry(entry))
 
@@ -28,7 +27,7 @@ const App = () => {
   }
 
   const toRepeat = getEntriesToRepeat(entries);
-
+  const handleAddEntry = (data: {title: string, link?: string}) => dispatch(createEntry(data))
 
   return (
     <div className="App">
@@ -48,7 +47,7 @@ const App = () => {
                         {entry.title}
                         {' '}
                         ({getPastRepetionDatesByEntry(entry).length - entry.repeatedAt.length})
-                <button
+                        <button
                           className="btn text-primary btn-sm"
                           onClick={() => handleRepeat(entry)}
                         >
@@ -62,17 +61,12 @@ const App = () => {
             }
           </div>
         </div>
-        <br/>
+        <br />
         <div className="card">
           <div className="card-body">
             <h3>Learned</h3>
             <br />
-            <Button
-              variant="primary"
-              onClick={handleAddEntry}
-            >
-              Add
-        </Button>
+            <AddEntry onSubmit={handleAddEntry}/>
             <br />
             <br />
             {
@@ -81,6 +75,7 @@ const App = () => {
                   <thead>
                     <tr>
                       <th>Title</th>
+                      <th>Link</th>
                       <th>Learned at</th>
                       <th>Next repetition at</th>
                       <th>Progress</th>
@@ -108,9 +103,6 @@ const App = () => {
     </div>
   );
 }
-
-export default App;
-
 
 const getEntriesToRepeat = (entries: Entry[]): Entry[] => {
   return entries.filter(entry => {

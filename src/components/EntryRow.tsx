@@ -31,7 +31,7 @@ export const EntryRow = ({ entry, onDelete, onUpdate }: EntryRowProps) => {
     }
   }
   const handleLinkChange = (e: React.FocusEvent<HTMLInputElement>) => {
-    const nextLink = e.target.value || entry.link;
+    const nextLink = e.target.value;
     if (nextLink !== entry.link) {
       onUpdate({ ...entry, link: nextLink });
     }
